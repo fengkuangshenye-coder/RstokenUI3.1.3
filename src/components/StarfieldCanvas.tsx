@@ -1,14 +1,6 @@
-"use client";
-
 import React, { useEffect, useRef } from "react";
 
-/**
- * 全屏星空背景（Canvas）
- * - 高 DPI 适配
- * - 支持 prefers-reduced-motion
- * - 窗口缩放自适应
- */
-export function StarfieldCanvas() {
+export default function StarfieldCanvas() {
   const ref = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -16,10 +8,8 @@ export function StarfieldCanvas() {
     const ctx = canvas.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const prefersReduce =
-      typeof window !== "undefined" &&
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     let raf = 0;
 
     function resize() {
@@ -31,15 +21,7 @@ export function StarfieldCanvas() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    type Star = {
-      x: number;
-      y: number;
-      r: number;
-      a: number; // angle
-      s: number; // speed
-    };
-
-    const stars: Star[] = Array.from({ length: 160 }, () => ({
+    const stars = Array.from({ length: 160 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       r: Math.random() * 1.2 + 0.2,
@@ -48,8 +30,8 @@ export function StarfieldCanvas() {
     }));
 
     function paint(bgOnly = false) {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const w = window.innerWidth,
+        h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, "#021526");
@@ -57,7 +39,6 @@ export function StarfieldCanvas() {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
       if (bgOnly) return;
-
       ctx.fillStyle = "rgba(255,255,255,0.9)";
       stars.forEach((s) => {
         s.a += s.s * 0.03;
@@ -82,7 +63,6 @@ export function StarfieldCanvas() {
       draw();
     }
     window.addEventListener("resize", resize);
-
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
@@ -91,5 +71,6 @@ export function StarfieldCanvas() {
 
   return <canvas ref={ref} className="fixed inset-0 -z-10" />;
 }
+
 
 
