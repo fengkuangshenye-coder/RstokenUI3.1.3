@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 你可以把自定义全局样式放到这里，比如 body 字体等 */
