@@ -1,20 +1,18 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "secondary";
-}
-
-export function Badge({ className, variant = "default", ...props }: BadgeProps) {
+export function Badge({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement>) {
   return (
-    <div
+    <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        variant === "default" && "border-transparent bg-primary/20 text-primary-foreground",
-        variant === "secondary" && "border-white/10 bg-white/10 text-white/90",
+        "inline-flex items-center rounded-xl border border-white/10 bg-white/10 px-2 py-0.5 text-xs",
         className
       )}
       {...props}
     />
   );
 }
+
