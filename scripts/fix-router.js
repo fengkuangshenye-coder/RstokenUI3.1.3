@@ -5,14 +5,14 @@ const path = require("path");
 const root = process.cwd();
 const pagesDir = path.join(root, "pages");
 
-// 这些是会与 App Router 冲突的典型文件
+// 这些是与 App Router 冲突的典型文件
 const candidates = [
   path.join(pagesDir, "index.tsx"),
   path.join(pagesDir, "index.jsx"),
   path.join(pagesDir, "_app.tsx"),
   path.join(pagesDir, "_app.jsx"),
   path.join(pagesDir, "_document.tsx"),
-  path.join(pagesDir, "_document.jsx"),
+  path.join(pagesDir, "_document.jsx")
 ];
 
 function safeUnlink(p) {
@@ -30,7 +30,7 @@ function cleanupEmptyPagesDir() {
   try {
     if (!fs.existsSync(pagesDir)) return;
     const remain = fs.readdirSync(pagesDir);
-    // pages 目录如果为空就删掉；如果还留有 api/ 之类就保留
+    // pages 目录若空则删除；若还留有 api/ 等就保留
     if (remain.length === 0) {
       fs.rmdirSync(pagesDir);
       console.log("✔ removed empty folder: pages");
@@ -46,3 +46,4 @@ console.log("— Fix Next.js app/pages router conflict —");
 candidates.forEach(safeUnlink);
 cleanupEmptyPagesDir();
 console.log("Done.");
+
