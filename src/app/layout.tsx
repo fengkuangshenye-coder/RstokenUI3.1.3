@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "RSToken UI",
-  description: "RSUI 3.2 — Next.js + Tailwind",
+  description: "RSUI 3.2 — Next.js + Tailwind + Recharts",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,3 +16,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
