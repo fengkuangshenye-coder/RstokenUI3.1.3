@@ -1,38 +1,30 @@
 {
   "name": "rstoken-ui",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
   "scripts": {
-    "postinstall": "node scripts/fix-router.js",
     "prebuild": "node scripts/fix-router.js",
-    "fix:router": "node scripts/fix-router.js",
     "build": "next build",
     "dev": "next dev",
     "start": "next start"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
-    "@radix-ui/react-accordion": "^1.2.0",
-    "@radix-ui/react-slot": "^1.0.2",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
+    "@radix-ui/react-accordion": "latest",
+    "autoprefixer": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
     "lucide-react": "latest",
     "next": "14.2.7",
+    "postcss": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "recharts": "^2.12.7",
-    "tailwind-merge": "^2.2.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.9",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.7",
-    "typescript": "^5.4.5"
-  },
-  "engines": {
-    "node": ">=18.18.0"
+    "recharts": "latest",
+    "tailwind-merge": "latest",
+    "tailwindcss": "latest",
+    "typescript": "5.4.5"
   }
 }
 
