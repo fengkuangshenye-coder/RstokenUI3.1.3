@@ -1,11 +1,9 @@
-﻿import "@/styles/globals.css";
-import Head from "next/head";
-import RSUI32 from "@/components/RSUI32";
+import dynamic from 'next/dynamic';
+
+// 从 src/pages/ 相对到 src/components/
+const RSUI32 = dynamic(() => import('../components/RSUI32'), { ssr: false });
+
 export default function Home() {
-  return (
-    <>
-      <Head><title>RStoken UI</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <RSUI32 />
-    </>
-  );
+  return <RSUI32 />;
 }
+
