@@ -1,74 +1,49 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 type Vec3 = { x: number; y: number; z: number };
-
-function latLonToXYZ(lat: number, lon: number, r = 1): Vec3 {
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lon + 180) * (Math.PI / 180);
-  const x = -r * Math.sin(phi) * Math.cos(theta);
-  const z = r * Math.sin(phi) * Math.sin(theta);
-  const y = r * Math.cos(phi);
-  return { x, y, z };
-}
-
-function rotate(p: Vec3, ry: number, rx: number): Vec3 {
-  const cosy = Math.cos(ry);
-  const siny = Math.sin(ry);
-  const x1 = p.x * cosy - p.z * siny;
-  const z1 = p.x * siny + p.z * cosy;
-  const y1 = p.y;
-
-  const cosx = Math.cos(rx);
-  const sinx = Math.sin(rx);
-  const y2 = y1 * cosx - z1 * sinx;
-  const z2 = y1 * sinx + z1 * cosx;
-
-  return { x: x1, y: y2, z: z2 };
-}
-
-export type OracleGlobeProps = {
-  className?: string;
-  height?: number;
-  speed?: number; // base angular speed (rad/s scaled)
-  neon?: boolean;
-};
 
 export default function OracleGlobe({
   className = "",
   height = 260,
   speed = 0.06,
   neon = true,
-}: OracleGlobeProps) {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const runningRef = useRef(true);
+}: {
+  className?: string;
+  height?: number;
+  speed?: number;
+  neon?: boolean;
+}) {
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const running = React.useRef(true);
 
-  useEffect(() => {
-    const wrap = wrapperRef.current!;
+  React.useEffect(() => {
     const canvas = canvasRef.current!;
+    const wrap = wrapperRef.current!;
     const ctx = canvas.getContext("2d")!;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     let w = wrap.clientWidth;
     let h = height;
-
-    // canvas size & transform
-    function applySize() {
-      w = wrap.clientWidth;
-      h = height;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    applySize();
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     let R = Math.min(w, h) * 0.38;
     const cx = w * 0.35;
     const cy = h * 0.52;
 
-    // grid lines
+    function latLonToXYZ(lat: number, lon: number, r = 1): Vec3 {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const x = -r * Math.sin(phi) * Math.cos(theta);
+      const z = r * Math.sin(phi) * Math.sin(theta);
+      const y = r * Math.cos(phi);
+      return { x, y, z };
+    }
+
     const meridians: Vec3[][] = [];
     const parallels: Vec3[][] = [];
     for (let lon = -150; lon <= 180; lon += 30) {
@@ -83,12 +58,12 @@ export default function OracleGlobe({
     }
 
     const ORB_NODES = [
-      { lat: 37.77, lon: -122.41 }, // SF
-      { lat: 51.5, lon: -0.12 }, // London
-      { lat: 1.29, lon: 103.85 }, // Singapore
-      { lat: 22.54, lon: 114.06 }, // Hong Kong
-      { lat: 35.68, lon: 139.69 }, // Tokyo
-      { lat: 40.71, lon: -74.0 }, // NYC
+      { lat: 37.77, lon: -122.41 },
+      { lat: 51.5, lon: -0.12 },
+      { lat: 1.29, lon: 103.85 },
+      { lat: 22.54, lon: 114.06 },
+      { lat: 35.68, lon: 139.69 },
+      { lat: 40.71, lon: -74.0 },
     ].map((p) => latLonToXYZ(p.lat, p.lon));
 
     const links = [
@@ -100,28 +75,40 @@ export default function OracleGlobe({
       [5, 0],
     ].map(([a, b]) => ({ a: ORB_NODES[a], b: ORB_NODES[b], t: Math.random() }));
 
-    let mouseX = 0;
-    let mouseY = 0;
+    let mx = 0,
+      my = 0;
     const onMove = (ev: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouseX = ((ev.clientX - rect.left) / rect.width - 0.5) * 0.6;
-      mouseY = ((ev.clientY - rect.top) / rect.height - 0.5) * 0.6;
+      mx = ((ev.clientX - rect.left) / rect.width - 0.5) * 0.6;
+      my = ((ev.clientY - rect.top) / rect.height - 0.5) * 0.6;
     };
     canvas.addEventListener("mousemove", onMove);
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        runningRef.current = entry.isIntersecting;
+        running.current = entry.isIntersecting;
       },
       { threshold: 0.05 }
     );
     io.observe(wrap);
 
-    // animation state
-    let rotY = 0;
-    let rotX = -0.1;
-    let rafId = 0;
-    let last = performance.now();
+    let rotY = 0,
+      rotX = -0.1;
+    let raf = 0,
+      last = performance.now();
+
+    function rotate(p: Vec3, ry: number, rx: number): Vec3 {
+      const cosy = Math.cos(ry),
+        siny = Math.sin(ry);
+      let x = p.x * cosy - p.z * siny;
+      let z = p.x * siny + p.z * cosy;
+      let y = p.y;
+      const cosx = Math.cos(rx),
+        sinx = Math.sin(rx);
+      const y2 = y * cosx - z * sinx;
+      const z2 = y * sinx + z * cosx;
+      return { x, y: y2, z: z2 };
+    }
 
     function proj(p: Vec3) {
       const f = 1.4;
@@ -134,17 +121,15 @@ export default function OracleGlobe({
       ctx.lineWidth = width;
       ctx.strokeStyle = stroke;
       ctx.beginPath();
-      let moved = false;
+      let first = true;
       for (const P of points) {
         const r = rotate(P, rotY, rotX);
         if (r.z < -0.2) continue;
         const s = proj(r);
-        if (!moved) {
+        if (first) {
           ctx.moveTo(s.x, s.y);
-          moved = true;
-        } else {
-          ctx.lineTo(s.x, s.y);
-        }
+          first = false;
+        } else ctx.lineTo(s.x, s.y);
       }
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -172,20 +157,19 @@ export default function OracleGlobe({
         y: (a.y + b.y) * 0.5 + 0.18,
         z: (a.z + b.z) * 0.5,
       };
-      lineStrip([a, mid, b], "rgba(103,232,249,0.5)", 0.6, 1);
+      const strip = [a, mid, b];
+      lineStrip(strip, "rgba(103,232,249,0.5)", 0.6, 1);
 
       const p1 = {
         x: a.x + (mid.x - a.x) * t,
         y: a.y + (mid.y - a.y) * t,
         z: a.z + (mid.z - a.z) * t,
       };
-      const t2 = Math.max(0, (t - 0.5) * 2);
       const p2 = {
-        x: mid.x + (b.x - mid.x) * t2,
-        y: mid.y + (b.y - mid.y) * t2,
-        z: mid.z + (b.z - mid.z) * t2,
+        x: mid.x + (b.x - mid.x) * Math.max(0, (t - 0.5) * 2),
+        y: mid.y + (b.y - mid.y) * Math.max(0, (t - 0.5) * 2),
+        z: mid.z + (b.z - mid.z) * Math.max(0, (t - 0.5) * 2),
       };
-
       [p1, p2].forEach((pt) => {
         const r = rotate(pt, rotY, rotX);
         if (r.z < -0.1) return;
@@ -201,35 +185,33 @@ export default function OracleGlobe({
       });
     }
 
-    function drawBackground() {
+    function background() {
       const g = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.4);
       g.addColorStop(0, "rgba(13,148,136,0.10)");
       g.addColorStop(1, "rgba(2,6,23,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
 
-      // scan lines
       const scanH = 2;
       const offset = (performance.now() / 900) % 6;
       ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = "rgba(94,234,212,0.06)";
-      for (let y = 0; y < h; y += 6) ctx.fillRect(0, y + offset, w, scanH);
+      for (let yy = 0; yy < h; yy += 6) ctx.fillRect(0, yy + offset, w, scanH);
       ctx.globalCompositeOperation = "source-over";
     }
 
     function frame(now: number) {
-      rafId = requestAnimationFrame(frame);
-      if (!runningRef.current) return;
+      raf = requestAnimationFrame(frame);
+      if (!running.current) return;
 
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-
       rotY += speed * dt;
-      rotX += (mouseY - rotX) * 0.08;
-      rotY += mouseX * 0.01;
+      rotX += (my - rotX) * 0.08;
+      rotY += mx * 0.01;
 
       ctx.clearRect(0, 0, w, h);
-      drawBackground();
+      background();
 
       if (neon) {
         ctx.save();
@@ -237,8 +219,8 @@ export default function OracleGlobe({
         ctx.arc(cx, cy, R, 0, Math.PI * 2);
         ctx.shadowColor = "rgba(59,130,246,0.35)";
         ctx.shadowBlur = 40;
-        ctx.strokeStyle = "rgba(59,130,246,0.35)";
         ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(59,130,246,0.35)";
         ctx.stroke();
         ctx.restore();
       }
@@ -253,20 +235,21 @@ export default function OracleGlobe({
         drawArc(L.a, L.b, L.t);
       });
     }
-
-    rafId = requestAnimationFrame(frame);
+    raf = requestAnimationFrame(frame);
 
     const onResize = () => {
-      applySize();
+      w = wrap.clientWidth;
+      canvas.style.width = `${w}px`;
+      canvas.width = Math.floor(w * dpr);
       R = Math.min(w, h) * 0.38;
     };
     window.addEventListener("resize", onResize);
 
     return () => {
-      cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
       canvas.removeEventListener("mousemove", onMove);
       io.disconnect();
+      cancelAnimationFrame(raf);
     };
   }, [height, speed, neon]);
 
