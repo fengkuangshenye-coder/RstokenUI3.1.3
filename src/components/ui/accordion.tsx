@@ -1,13 +1,11 @@
-"use client";
-
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const Accordion = AccordionPrimitive.Root;
+export const Accordion = AccordionPrimitive.Root;
 
-const AccordionItem = React.forwardRef<
+export const AccordionItem = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
@@ -19,7 +17,7 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
-const AccordionTrigger = React.forwardRef<
+export const AccordionTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
@@ -27,7 +25,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 text-left text-base font-medium transition-all hover:text-white",
+        "flex flex-1 items-center justify-between py-4 text-left text-sm font-medium hover:text-white transition",
         className
       )}
       {...props}
@@ -39,7 +37,7 @@ const AccordionTrigger = React.forwardRef<
 ));
 AccordionTrigger.displayName = "AccordionTrigger";
 
-const AccordionContent = React.forwardRef<
+export const AccordionContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
@@ -48,10 +46,11 @@ const AccordionContent = React.forwardRef<
     className={cn("pb-4 text-sm text-muted-foreground", className)}
     {...props}
   >
-    {children}
+    <div className="pt-0">{children}</div>
   </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = "AccordionContent";
+
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
 
