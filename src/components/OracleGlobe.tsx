@@ -1,19 +1,24 @@
-"use client";
-
+// src/components/OracleGlobe.tsx
 import React from "react";
 
-type Vec3 = { x: number; y: number; z: number };
-
-export function OracleGlobe(props: {
+type Props = {
   className?: string;
   height?: number;
   speed?: number;
   neon?: boolean;
-}) {
-  const { className = "", height = 260, speed = 0.06, neon = true } = props;
+};
+
+type Vec3 = { x: number; y: number; z: number };
+
+export default function OracleGlobe({
+  className = "",
+  height = 260,
+  speed = 0.06,
+  neon = true,
+}: Props) {
   const wrapperRef = React.useRef<HTMLDivElement | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
-  const running = React.useRef(true);
+  const runningRef = React.useRef(true);
 
   React.useEffect(() => {
     const canvas = canvasRef.current!;
@@ -21,6 +26,7 @@ export function OracleGlobe(props: {
     const ctx = canvas.getContext("2d")!;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
+    // 初始尺寸与像素比
     let w = wrap.clientWidth;
     let h = height;
     canvas.style.width = `${w}px`;
@@ -29,6 +35,7 @@ export function OracleGlobe(props: {
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    // 球体参数
     let R = Math.min(w, h) * 0.38;
     const cx = w * 0.35;
     const cy = h * 0.52;
@@ -42,6 +49,7 @@ export function OracleGlobe(props: {
       return { x, y, z };
     }
 
+    // 网格线
     const meridians: Vec3[][] = [];
     const parallels: Vec3[][] = [];
     for (let lon = -150; lon <= 180; lon += 30) {
@@ -55,7 +63,8 @@ export function OracleGlobe(props: {
       parallels.push(line);
     }
 
-    const ORB_NODES = [
+    // 节点与链路
+    const ORB_NODES: Vec3[] = [
       { lat: 37.77, lon: -122.41 },
       { lat: 51.5, lon: -0.12 },
       { lat: 1.29, lon: 103.85 },
@@ -73,6 +82,7 @@ export function OracleGlobe(props: {
       [5, 0],
     ].map(([a, b]) => ({ a: ORB_NODES[a], b: ORB_NODES[b], t: Math.random() }));
 
+    // 交互
     let mx = 0,
       my = 0;
     const onMove = (ev: MouseEvent) => {
@@ -82,30 +92,32 @@ export function OracleGlobe(props: {
     };
     canvas.addEventListener("mousemove", onMove);
 
+    // 可见性
     const io = new IntersectionObserver(
       ([entry]) => {
-        running.current = entry.isIntersecting;
+        runningRef.current = entry.isIntersecting;
       },
       { threshold: 0.05 }
     );
     io.observe(wrap);
 
-    let rotY = 0,
-      rotX = -0.1;
-    let raf = 0,
-      last = performance.now();
+    // 动画状态（只声明一次）
+    let rotY = 0;
+    let rotX = -0.1;
+    let last = performance.now();
+    let rafId = 0;
 
     function rotate(p: Vec3, ry: number, rx: number): Vec3 {
       const cosy = Math.cos(ry),
         siny = Math.sin(ry);
-      let x = p.x * cosy - p.z * siny;
-      let z = p.x * siny + p.z * cosy;
-      let y = p.y;
+      const x1 = p.x * cosy - p.z * siny;
+      const z1 = p.x * siny + p.z * cosy;
+      const y1 = p.y;
       const cosx = Math.cos(rx),
         sinx = Math.sin(rx);
-      const y2 = y * cosx - z * sinx;
-      const z2 = y * sinx + z * cosx;
-      return { x, y: y2, z: z2 };
+      const y2 = y1 * cosx - z1 * sinx;
+      const z2 = y1 * sinx + z1 * cosx;
+      return { x: x1, y: y2, z: z2 };
     }
 
     function proj(p: Vec3) {
@@ -122,12 +134,14 @@ export function OracleGlobe(props: {
       let first = true;
       for (const P of points) {
         const r = rotate(P, rotY, rotX);
-        if (r.z < -0.2) continue;
+        if (r.z < -0.2) continue; // 背面裁剪
         const s = proj(r);
         if (first) {
           ctx.moveTo(s.x, s.y);
           first = false;
-        } else ctx.lineTo(s.x, s.y);
+        } else {
+          ctx.lineTo(s.x, s.y);
+        }
       }
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -150,24 +164,21 @@ export function OracleGlobe(props: {
     }
 
     function drawArc(a: Vec3, b: Vec3, t: number) {
-      const mid = {
-        x: (a.x + b.x) * 0.5,
-        y: (a.y + b.y) * 0.5 + 0.18,
-        z: (a.z + b.z) * 0.5,
-      };
+      const mid: Vec3 = { x: (a.x + b.x) * 0.5, y: (a.y + b.y) * 0.5 + 0.18, z: (a.z + b.z) * 0.5 };
       const strip = [a, mid, b];
       lineStrip(strip, "rgba(103,232,249,0.5)", 0.6, 1);
 
-      const p1 = {
+      const p1: Vec3 = {
         x: a.x + (mid.x - a.x) * t,
         y: a.y + (mid.y - a.y) * t,
         z: a.z + (mid.z - a.z) * t,
       };
-      const p2 = {
+      const p2: Vec3 = {
         x: mid.x + (b.x - mid.x) * Math.max(0, (t - 0.5) * 2),
         y: mid.y + (b.y - mid.y) * Math.max(0, (t - 0.5) * 2),
         z: mid.z + (b.z - mid.z) * Math.max(0, (t - 0.5) * 2),
       };
+
       [p1, p2].forEach((pt) => {
         const r = rotate(pt, rotY, rotX);
         if (r.z < -0.1) return;
@@ -190,6 +201,7 @@ export function OracleGlobe(props: {
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
 
+      // 扫描线
       const scanH = 2;
       const offset = (performance.now() / 900) % 6;
       ctx.globalCompositeOperation = "lighter";
@@ -199,11 +211,12 @@ export function OracleGlobe(props: {
     }
 
     function frame(now: number) {
-      raf = requestAnimationFrame(frame);
-      if (!running.current) return;
+      rafId = requestAnimationFrame(frame);
+      if (!runningRef.current) return;
 
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+
       rotY += speed * dt;
       rotX += (my - rotX) * 0.08;
       rotY += mx * 0.01;
@@ -233,7 +246,7 @@ export function OracleGlobe(props: {
         drawArc(L.a, L.b, L.t);
       });
     }
-    let raf = requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
 
     const onResize = () => {
       w = wrap.clientWidth;
@@ -247,7 +260,7 @@ export function OracleGlobe(props: {
       window.removeEventListener("resize", onResize);
       canvas.removeEventListener("mousemove", onMove);
       io.disconnect();
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafId);
     };
   }, [height, speed, neon]);
 
@@ -257,5 +270,6 @@ export function OracleGlobe(props: {
     </div>
   );
 }
+
 
 
