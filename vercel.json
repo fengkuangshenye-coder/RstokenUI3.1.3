@@ -1,5 +1,18 @@
 {
+  "version": 2,
+  "framework": "nextjs",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
   "functions": {
-    "runtime": "nodejs20.x"
+    "api/**/*.{js,ts}": {
+      "runtime": "nodejs18.x"
+    },
+    "pages/api/**/*.{js,ts}": {
+      "runtime": "nodejs18.x"
+    },
+    "app/**/route.{js,ts}": {
+      "runtime": "nodejs18.x"
+    }
   }
 }
