@@ -19,6 +19,11 @@ import {
   Rocket,
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+
+
+// --- auto-injected by nextsever: typed label renderer for Recharts Pie
+type PieLabelPayload = { percent?: number };
+const renderPiePercentLabel = ({ percent }: PieLabelPayload) => `${(((percent ?? 0) * 100)).toFixed(0)}%`;
 import StarfieldCanvas from "./StarfieldCanvas";
 import OracleGlobe from "./OracleGlobe";
 
@@ -28,9 +33,9 @@ const CFG = {
     symbol: "RST",
     chain: "BSC",
     decimals: 18,
-    contract: "【可填主网地址】",
-    oracleRegistry: "【可填主网地址】",
-    vault: "【可填金库地址】",
+    contract: "[可填主网地址]",
+    oracleRegistry: "[可填主网地址]",
+    vault: "[可填金库地址]",
   },
   links: {
     scan: "#",
@@ -42,7 +47,7 @@ const CFG = {
     discord: "#",
   },
   privateSale: {
-    timeUTC: "【可填UTC时间】",
+    timeUTC: "[可填UTC时间]",
   },
   distribution: [
     { name: "社区与流动性", value: 42 },
@@ -223,7 +228,7 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
     <Card className="bg-white/5 border-white/10 card-tilt">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Rocket className="h-5 w-5 text-cyan-300" /> 私募（仅首批信任用户）
+          <Rocket className="h-5 w-5 text-cyan-300" /> 私募(仅首批信任用户)
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 text-sm">
@@ -242,7 +247,7 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
           >
             USDT
           </Button>
-          <span className="text-muted-foreground ml-auto">时间(UTC)：{CFG.privateSale.timeUTC}</span>
+          <span className="text-muted-foreground ml-auto">时间(UTC):{CFG.privateSale.timeUTC}</span>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -254,7 +259,7 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
         </div>
 
         <div className="grid gap-2">
-          <label className="text-muted-foreground">参与金额（{asset}）</label>
+          <label className="text-muted-foreground">参与金额({asset})</label>
           <Input
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value || 0))}
@@ -262,7 +267,7 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
             min={0}
           />
           <p className="text-xs text-muted-foreground">
-            预计可得：<span className="text-cyan-300 font-medium">{rst} RST</span>
+            预计可得:<span className="text-cyan-300 font-medium">{rst} RST</span>
             <span className="ml-2">{asset === "BNB" ? `按 BNB ≈ $${bnbPrice.toFixed(2)} 折算` : `按 USDT ≈ $1.00 折算`}</span>
           </p>
         </div>
@@ -302,9 +307,9 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
 
         <div className="pt-2 text-xs text-muted-foreground">
           <p>
-            开盘后可点击 <span className="text-cyan-300">Claim 手续费领取</span>。
+            开盘后可点击 <span className="text-cyan-300">Claim 手续费领取</span>.
           </p>
-          <p>合约地址与 ABI 接入后，按钮将上链交互。</p>
+          <p>合约地址与 ABI 接入后,按钮将上链交互.</p>
         </div>
       </CardContent>
     </Card>
@@ -412,7 +417,7 @@ export default function RSUI32() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 relative">
-      {/* 背景：星空 + 渐变 + 噪点 */}
+      {/* 背景:星空 + 渐变 + 噪点 */}
       <TechBackground />
 
       {/* 滚动进度条 */}
@@ -467,12 +472,12 @@ export default function RSUI32() {
         <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <h1 className="text-3xl md:text-5xl font-semibold leading-tight tracking-tight title-gradient">
-              {CFG.token.name}（人生币）：跟随全球人口变化的智能代币
+              {CFG.token.name}(人生币):跟随全球人口变化的智能代币
             </h1>
             <p className="text-muted-foreground mt-4 text-base md:text-lg">
-              “一个生命的诞生 +1，一次离世 -1”。多源预言机驱动供给变动，
+              "一个生命的诞生 +1,一次离世 -1".多源预言机驱动供给变动,
               <span className="text-cyan-300">透明</span>、
-              <span className="text-cyan-300">可验证</span>、与现实世界紧密映射。
+              <span className="text-cyan-300">可验证</span>、与现实世界紧密映射.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button onClick={() => (window.location.href = CFG.links.privateSale)} className="btn-neon">
@@ -492,13 +497,13 @@ export default function RSUI32() {
               </Button>
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <Badge>链：{CFG.token.chain}</Badge>
-              <Badge>代号：{CFG.token.symbol}</Badge>
-              <Badge>精度：{CFG.token.decimals}</Badge>
-              <Badge>供应：动态</Badge>
-              <Badge>预言机：每小时心跳</Badge>
-              <Badge>冷却：10秒</Badge>
-              <Badge>治理：单签（预留多签/DAO）</Badge>
+              <Badge>链:{CFG.token.chain}</Badge>
+              <Badge>代号:{CFG.token.symbol}</Badge>
+              <Badge>精度:{CFG.token.decimals}</Badge>
+              <Badge>供应:动态</Badge>
+              <Badge>预言机:每小时心跳</Badge>
+              <Badge>冷却:10秒</Badge>
+              <Badge>治理:单签(预留多签/DAO)</Badge>
             </div>
           </div>
           <div className="grid gap-4">
@@ -510,22 +515,22 @@ export default function RSUI32() {
                 <div className="p-3 rounded-xl bg-white/5">
                   <ShieldCheck className="h-4 w-4 text-emerald-400 mb-2" />
                   <p className="font-medium">多源预言机</p>
-                  <p className="text-muted-foreground">EIP-712 多签名报告，quorum 校验</p>
+                  <p className="text-muted-foreground">EIP-712 多签名报告,quorum 校验</p>
                 </div>
                 <div className="p-3 rounded-xl bg-white/5">
                   <PauseCircle className="h-4 w-4 text-amber-400 mb-2" />
                   <p className="font-medium">熔断与恢复</p>
-                  <p className="text-muted-foreground">异常触发 pause，恢复带冷却</p>
+                  <p className="text-muted-foreground">异常触发 pause,恢复带冷却</p>
                 </div>
                 <div className="p-3 rounded-xl bg-white/5">
                   <Activity className="h-4 w-4 text-sky-400 mb-2" />
                   <p className="font-medium">迟滞+平滑</p>
-                  <p className="text-muted-foreground">忽略毛刺，平滑供应变动</p>
+                  <p className="text-muted-foreground">忽略毛刺,平滑供应变动</p>
                 </div>
                 <div className="p-3 rounded-xl bg-white/5">
                   <Wallet className="h-4 w-4 text-fuchsia-400 mb-2" />
                   <p className="font-medium">手续费透明</p>
-                  <p className="text-muted-foreground">费率上限10%，链上披露</p>
+                  <p className="text-muted-foreground">费率上限10%,链上披露</p>
                 </div>
               </CardContent>
             </Card>
@@ -557,30 +562,30 @@ export default function RSUI32() {
         <DividerParallax />
       </section>
 
-      <Section id="about" title="项目介绍" subtitle="RStoken（人生币）将全球人口净变动映射为代币供给的增减，过程全链上披露、可验证、可审计。">
+      <Section id="about" title="项目介绍" subtitle="RStoken(人生币)将全球人口净变动映射为代币供给的增减,过程全链上披露、可验证、可审计.">
         <div className="grid md:grid-cols-3 gap-4">
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">现实映射</p>
-              <p className="text-muted-foreground">以公开统计数据为依据，按净增量调整供应。</p>
+              <p className="text-muted-foreground">以公开统计数据为依据,按净增量调整供应.</p>
             </CardContent>
           </Card>
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">极致透明</p>
-              <p className="text-muted-foreground">增发/销毁、费用与参数改动全部写链。</p>
+              <p className="text-muted-foreground">增发/销毁、费用与参数改动全部写链.</p>
             </CardContent>
           </Card>
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">稳健运行</p>
-              <p className="text-muted-foreground">多源聚合、冷却与熔断，降低异常冲击。</p>
+              <p className="text-muted-foreground">多源聚合、冷却与熔断,降低异常冲击.</p>
             </CardContent>
           </Card>
         </div>
       </Section>
 
-      <Section id="tokenomics" title="代币经济模型" subtitle="供应动态、迟滞滤波与平滑因子，配合单周期上限与时间锁，形成稳健的供给调节体系。">
+      <Section id="tokenomics" title="代币经济模型" subtitle="供应动态、迟滞滤波与平滑因子,配合单周期上限与时间锁,形成稳健的供给调节体系.">
         <div className="grid lg:grid-cols-2 gap-6">
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardHeader>
@@ -599,7 +604,7 @@ export default function RSUI32() {
                 }
               />
               <InfoRow label="Oracle Registry" value={<span>{CFG.token.oracleRegistry}</span>} />
-              <InfoRow label="供应属性" value="动态：按净增量Δ并经平滑应用" />
+              <InfoRow label="供应属性" value="动态:按净增量Δ并经平滑应用" />
             </CardContent>
           </Card>
 
@@ -617,7 +622,7 @@ export default function RSUI32() {
                     innerRadius={70}
                     outerRadius={110}
                     paddingAngle={2}
-                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    label={renderPiePercentLabel}) => `${(percent * 100).toFixed(0)}%`}
                   >
                     {CFG.distribution.map((_, i) => (
                       <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
@@ -641,23 +646,23 @@ export default function RSUI32() {
         </div>
       </Section>
 
-      <Section id="private" title="私募与上架" subtitle="仅面向首批信任项目的用户开放；公开交易将于上架后进行。">
+      <Section id="private" title="私募与上架" subtitle="仅面向首批信任项目的用户开放;公开交易将于上架后进行.">
         <div className="grid lg:grid-cols-3 gap-4">
           <PrivateSalePanel onToast={push} />
           <Card className="bg-white/5 border-white/10 lg:col-span-2 card-tilt">
             <CardHeader>
-              <CardTitle>资金用途（示例）</CardTitle>
+              <CardTitle>资金用途(示例)</CardTitle>
             </CardHeader>
             <CardContent className="text-sm grid md:grid-cols-2 gap-3">
               <ul className="list-disc list-inside text-muted-foreground leading-7">
-                <li>流动性注入：【可填】%</li>
-                <li>技术研发与审计：【可填】%</li>
-                <li>市场与生态：【可填】%</li>
-                <li>合规与储备：【可填】%</li>
+                <li>流动性注入:[可填]%</li>
+                <li>技术研发与审计:[可填]%</li>
+                <li>市场与生态:[可填]%</li>
+                <li>合规与储备:[可填]%</li>
               </ul>
               <div className="rounded-xl border border-white/10 p-3 bg-white/5">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium">全球数据预言机（示意）</p>
+                  <p className="font-medium">全球数据预言机(示意)</p>
                   <span className="text-xs text-muted-foreground">实时心跳 / 多源聚合</span>
                 </div>
                 <OracleGlobe height={260} speed={0.06} neon className="w-full" />
@@ -667,7 +672,7 @@ export default function RSUI32() {
         </div>
       </Section>
 
-      <Section id="roadmap" title="路线图" subtitle="以稳定运行为核心，逐步扩展生态与治理。">
+      <Section id="roadmap" title="路线图" subtitle="以稳定运行为核心,逐步扩展生态与治理.">
         <div className="grid lg:grid-cols-4 gap-4 text-sm">
           <RoadItem q="Q1" items={["测试网部署与验证", "预言机 DRY RUN", "官网与看板上线"]} />
           <RoadItem q="Q2" items={["主网上线与私募", "第三方审计报告", "数据源扩容与容错"]} />
@@ -676,30 +681,30 @@ export default function RSUI32() {
         </div>
       </Section>
 
-      <Section id="compliance" title="透明度与合规" subtitle="仅使用公开统计数据；关键参数变更需 24h 链上排期；源代码可验证。">
+      <Section id="compliance" title="透明度与合规" subtitle="仅使用公开统计数据;关键参数变更需 24h 链上排期;源代码可验证.">
         <div className="grid md:grid-cols-3 gap-4">
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">合约公开</p>
-              <p className="text-muted-foreground">BscScan 验证，事件全量披露。</p>
+              <p className="text-muted-foreground">BscScan 验证,事件全量披露.</p>
             </CardContent>
           </Card>
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">时间锁</p>
-              <p className="text-muted-foreground">参数变更须 24 小时后执行。</p>
+              <p className="text-muted-foreground">参数变更须 24 小时后执行.</p>
             </CardContent>
           </Card>
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardContent className="p-5">
               <p className="font-semibold mb-1">隐私友好</p>
-              <p className="text-muted-foreground">不涉及个人身份数据，仅用公开统计/百科。</p>
+              <p className="text-muted-foreground">不涉及个人身份数据,仅用公开统计/百科.</p>
             </CardContent>
           </Card>
         </div>
       </Section>
 
-      <Section id="analytics" title="数据看板（示例）" subtitle="实际上线后可接入你的 Indexer 或第三方服务替换为真实数据。">
+      <Section id="analytics" title="数据看板(示例)" subtitle="实际上线后可接入你的 Indexer 或第三方服务替换为真实数据.">
         <div className="grid lg:grid-cols-3 gap-4">
           <Kpi title="本周净增量(Δ)" value={"+67"} desc="多源中位数" />
           <Kpi title="实际应用(Δ')" value={"+55"} desc="平滑后" />
@@ -730,30 +735,30 @@ export default function RSUI32() {
           <AccordionItem value="q1">
             <AccordionTrigger>为什么供应是动态的？</AccordionTrigger>
             <AccordionContent>
-              每小时读取公开人口数据，多源校验后将净增量映射到代币供应；小幅波动由迟滞阈值过滤，并通过平滑因子降低冲击。
+              每小时读取公开人口数据,多源校验后将净增量映射到代币供应;小幅波动由迟滞阈值过滤,并通过平滑因子降低冲击.
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="q2">
             <AccordionTrigger>你们能随意改参数或增发吗？</AccordionTrigger>
             <AccordionContent>
-              关键参数变更有 24h 时间锁，链上排期与执行全可查；增发/销毁依据预言机报告，且有单周期上限与冷却保护。
+              关键参数变更有 24h 时间锁,链上排期与执行全可查;增发/销毁依据预言机报告,且有单周期上限与冷却保护.
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="q3">
             <AccordionTrigger>手续费是多少？</AccordionTrigger>
             <AccordionContent>
-              默认 0%，上限 ≤10%；全部进入公开 feeVault，用于技术、审计、合规与生态建设，所有提取事件可查。
+              默认 0%,上限 ≤10%;全部进入公开 feeVault,用于技术、审计、合规与生态建设,所有提取事件可查.
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="q4">
             <AccordionTrigger>预言机异常会怎样？</AccordionTrigger>
             <AccordionContent>
-              多源聚合 + 异常拒绝 + 连续拒绝触发熔断；必要时可 pause 全局，恢复前有冷却保护。
+              多源聚合 + 异常拒绝 + 连续拒绝触发熔断;必要时可 pause 全局,恢复前有冷却保护.
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="q5">
             <AccordionTrigger>是否收集个人数据？</AccordionTrigger>
-            <AccordionContent>不。只使用公开统计与百科信息，不涉及个人身份数据。</AccordionContent>
+            <AccordionContent>不.只使用公开统计与百科信息,不涉及个人身份数据.</AccordionContent>
           </AccordionItem>
         </Accordion>
       </Section>

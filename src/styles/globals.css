@@ -1,31 +1,25 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 主题变量（与 tailwind.config.ts 保持一致） */
 :root {
   --background: 222 47% 5%;
   --foreground: 210 40% 98%;
-  --muted: 215 20% 14%;
-  --muted-foreground: 215 20% 75%;
-  --popover: 222 47% 8%;
+  --muted: 215 28% 17%;
+  --muted-foreground: 218 11% 65%;
+  --popover: 222 47% 5%;
   --popover-foreground: 210 40% 98%;
-  --card: 222 47% 8%;
+  --card: 222 47% 7%;
   --card-foreground: 210 40% 98%;
-  --border: 215 20% 20%;
-  --input: 215 20% 20%;
-  --primary: 199 89% 60%; /* cyan-400-ish */
-  --primary-foreground: 210 40% 98%;
-  --secondary: 250 95% 76%;
+  --border: 217 33% 18%;
+  --input: 217 33% 18%;
+  --primary: 199 89% 60%;
+  --primary-foreground: 222 47% 5%;
+  --secondary: 263 83% 71%;
   --secondary-foreground: 222 47% 5%;
-  --accent: 200 98% 58%;
+  --accent: 173 100% 43%;
   --accent-foreground: 222 47% 5%;
-  --destructive: 0 85% 60%;
-  --destructive-foreground: 210 40% 98%;
-  --ring: 199 89% 60%;
-  --radius: 0.75rem;
 }
 
-* {
-  @apply border-border;
-}
+html, body, #__next { height: 100%; }
+body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
