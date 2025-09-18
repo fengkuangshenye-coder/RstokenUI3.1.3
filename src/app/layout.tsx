@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "RSToken UI",
-  description: "RSUI 3.2 — Next.js + Tailwind + Recharts + lucide-react",
+  description: "RSUI 3.2 — Next.js + Tailwind",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
