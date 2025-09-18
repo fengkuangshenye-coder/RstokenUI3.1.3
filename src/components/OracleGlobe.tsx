@@ -1,119 +1,214 @@
-import React, { useEffect, useRef } from 'react';
+// src/components/OracleGlobe.tsx
+import React, { useEffect, useRef } from "react";
 
-interface OracleGlobeProps {
-    className?: string;
-    height?: number;
-    speed?: number;
-    neon?: boolean;
-}
+export function OracleGlobe({
+  className = "",
+  height = 260,
+  speed = 0.06,
+  neon = true,
+}: {
+  className?: string;
+  height?: number;
+  speed?: number;
+  neon?: boolean;
+}) {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const running = useRef(true);
 
-export function OracleGlobe({ className = '', height = 260, speed = 0.06, neon = true }: OracleGlobeProps) {
-    const wrapperRef = useRef<HTMLDivElement | null>(null);
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const running = useRef(true);
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    const wrap = wrapperRef.current!;
+    const ctx = canvas.getContext("2d")!;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
 
-    useEffect(() => {
-        const canvas = canvasRef.current!;
-        const wrap = wrapperRef.current!;
-        const ctx = canvas.getContext('2d')!;
+    let w = wrap.clientWidth;
+    let h = height;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        let width = wrap.clientWidth;
-        let heightPx = height;
-        canvas.width = width * devicePixelRatio;
-        canvas.height = heightPx * devicePixelRatio;
-        canvas.style.width = width + 'px';
-        canvas.style.height = heightPx + 'px';
-        ctx.scale(devicePixelRatio, devicePixelRatio);
+    let R = Math.min(w, h) * 0.38;
+    const cx = w * 0.35;
+    const cy = h * 0.52;
 
-        const nodes = [];
-        const lines = [];
+    function latLonToXYZ(lat: number, lon: number, r = 1) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      return {
+        x: -r * Math.sin(phi) * Math.cos(theta),
+        z: r * Math.sin(phi) * Math.sin(theta),
+        y: r * Math.cos(phi),
+      };
+    }
 
-        for (let lat = -90; lat <= 90; lat += 30) {
-            for (let lon = -180; lon <= 180; lon += 30) {
-                nodes.push({ lat, lon });
-            }
-        }
+    const meridians: { x: number; y: number; z: number }[][] = [];
+    const parallels: { x: number; y: number; z: number }[][] = [];
+    for (let lon = -150; lon <= 180; lon += 30) {
+      const line: any[] = [];
+      for (let lat = -80; lat <= 80; lat += 5)
+        line.push(latLonToXYZ(lat, lon));
+      meridians.push(line);
+    }
+    for (let lat = -60; lat <= 60; lat += 20) {
+      const line: any[] = [];
+      for (let lon = -180; lon <= 180; lon += 5)
+        line.push(latLonToXYZ(lat, lon));
+      parallels.push(line);
+    }
 
-        for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-                if (Math.abs(nodes[i].lat - nodes[j].lat) <= 30 && Math.abs(nodes[i].lon - nodes[j].lon) <= 30) {
-                    lines.push([i, j]);
-                }
-            }
-        }
+    const ORB_NODES = [
+      { lat: 37.77, lon: -122.41 },
+      { lat: 51.5, lon: -0.12 },
+      { lat: 1.29, lon: 103.85 },
+      { lat: 22.54, lon: 114.06 },
+      { lat: 35.68, lon: 139.69 },
+      { lat: 40.71, lon: -74.0 },
+    ].map((p) => latLonToXYZ(p.lat, p.lon));
 
-        function latLonToXYZ(lat: number, lon: number, radius: number) {
-            const phi = (90 - lat) * (Math.PI / 180);
-            const theta = (lon + 180) * (Math.PI / 180);
-            const x = -radius * Math.sin(phi) * Math.cos(theta);
-            const z = radius * Math.sin(phi) * Math.sin(theta);
-            const y = radius * Math.cos(phi);
-            return { x, y, z };
-        }
+    const links = [
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 0],
+    ].map(([a, b]) => ({
+      a: ORB_NODES[a],
+      b: ORB_NODES[b],
+      t: Math.random(),
+    }));
 
-        function rotateY(x: number, z: number, angle: number) {
-            const sin = Math.sin(angle);
-            const cos = Math.cos(angle);
-            return { x: x * cos - z * sin, z: z * cos + x * sin };
-        }
+    let mx = 0,
+      my = 0;
+    const onMove = (ev: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mx = ((ev.clientX - rect.left) / rect.width - 0.5) * 0.6;
+      my = ((ev.clientY - rect.top) / rect.height - 0.5) * 0.6;
+    };
+    canvas.addEventListener("mousemove", onMove);
 
-        function rotateX(y: number, z: number, angle: number) {
-            const sin = Math.sin(angle);
-            const cos = Math.cos(angle);
-            return { y: y * cos - z * sin, z: z * cos + y * sin };
-        }
-
-        function draw() {
-            if (!running.current) return;
-            requestAnimationFrame(draw);
-
-            ctx.clearRect(0, 0, width, heightPx);
-
-            const radius = Math.min(width, heightPx) * 0.3;
-            const cx = width / 2;
-            const cy = heightPx / 2;
-            const time = Date.now() * 0.001 * speed;
-
-            const points = nodes.map(({ lat, lon }) => {
-                let { x, y, z } = latLonToXYZ(lat, lon, radius);
-                ({ x, z } = rotateY(x, z, time));
-                ({ y, z } = rotateX(y, z, time * 0.7));
-                const scale = 3 / (z / radius + 4);
-                return { x: cx + x * scale, y: cy + y * scale, scale };
-            });
-
-            ctx.lineWidth = 1.5;
-            ctx.strokeStyle = neon ? '#0ff' : 'rgba(255, 255, 255, 0.3)';
-
-            for (const [i, j] of lines) {
-                const a = points[i];
-                const b = points[j];
-                ctx.beginPath();
-                ctx.moveTo(a.x, a.y);
-                ctx.lineTo(b.x, b.y);
-                ctx.stroke();
-            }
-
-            for (const p of points) {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 2.5 * p.scale, 0, Math.PI * 2);
-                ctx.fillStyle = neon ? '#0ff' : '#fff';
-                ctx.shadowColor = neon ? '#0ff' : 'transparent';
-                ctx.shadowBlur = neon ? 10 : 0;
-                ctx.fill();
-            }
-        }
-
-        draw();
-
-        return () => {
-            running.current = false;
-        };
-    }, [height, speed, neon]);
-
-    return (
-        <div ref={wrapperRef} className={className} style={{ height }}>
-            <canvas ref={canvasRef} />
-        </div>
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        running.current = entry.isIntersecting;
+      },
+      { threshold: 0.05 }
     );
+    io.observe(wrap);
+
+    let rotY = 0,
+      rotX = -0.1;
+    let raf = 0,
+      last = performance.now();
+
+    function rotate(p: { x: number; y: number; z: number }, ry: number, rx: number) {
+      const cosy = Math.cos(ry),
+        siny = Math.sin(ry);
+      let x = p.x * cosy - p.z * siny;
+      let z = p.x * siny + p.z * cosy;
+      let y = p.y;
+      const cosx = Math.cos(rx),
+        sinx = Math.sin(rx);
+      const y2 = y * cosx - z * sinx;
+      const z2 = y * sinx + z * cosx;
+      return { x, y: y2, z: z2 };
+    }
+
+    function proj(p: { x: number; y: number; z: number }) {
+      const f = 1.4;
+      const m = (R * f) / (p.z + 2.6);
+      return { x: cx + p.x * m, y: cy + p.y * m, z: p.z };
+    }
+
+    function lineStrip(
+      points: { x: number; y: number; z: number }[],
+      stroke: string,
+      alpha = 0.7,
+      width = 1
+    ) {
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.strokeStyle = stroke;
+      ctx.beginPath();
+      let first = true;
+      for (const P of points) {
+        const r = rotate(P, rotY, rotX);
+        if (r.z < -0.2) continue;
+        const s = proj(r);
+        if (first) {
+          ctx.moveTo(s.x, s.y);
+          first = false;
+        } else ctx.lineTo(s.x, s.y);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    function drawNode(p: { x: number; y: number; z: number }) {
+      const r = rotate(p, rotY, rotX);
+      if (r.z < -0.15) return;
+      const s = proj(r);
+      ctx.save();
+      if (neon) {
+        ctx.shadowColor = "rgba(0,255,220,0.8)";
+        ctx.shadowBlur = 12;
+      }
+      ctx.fillStyle = "#67e8f9";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function frame(now: number) {
+      raf = requestAnimationFrame(frame);
+      if (!running.current) return;
+
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      rotY += speed * dt;
+      rotX += (my - rotX) * 0.08;
+      rotY += mx * 0.01;
+
+      ctx.clearRect(0, 0, w, h);
+
+      meridians.forEach((line) =>
+        lineStrip(line, "rgba(148,163,184,0.18)", 0.8)
+      );
+      parallels.forEach((line) =>
+        lineStrip(line, "rgba(148,163,184,0.14)", 0.7)
+      );
+
+      ORB_NODES.forEach(drawNode);
+      links.forEach((L) => {
+        L.t += dt * 0.6;
+        if (L.t > 1) L.t -= 1;
+      });
+    }
+    raf = requestAnimationFrame(frame);
+
+    const onResize = () => {
+      w = wrap.clientWidth;
+      canvas.style.width = `${w}px`;
+      canvas.width = Math.floor(w * dpr);
+      R = Math.min(w, h) * 0.38;
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      canvas.removeEventListener("mousemove", onMove);
+      io.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [height, speed, neon]);
+
+  return (
+    <div ref={wrapperRef} className={className}>
+      <canvas ref={canvasRef} />
+    </div>
+  );
 }
+
