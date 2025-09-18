@@ -1,54 +1,50 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+export default {
   darkMode: ["class"],
-  content: ["./src/**/*.{ts,tsx}"],
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "hsl(214 32% 22%)",
+        input: "hsl(214 32% 22%)",
+        ring: "hsl(199 89% 48%)",
+        background: "hsl(222 47% 11%)",
+        foreground: "hsl(210 40% 98%)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))"
+          DEFAULT: "hsl(199 89% 48%)",
+          foreground: "hsl(222 47% 11%)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))"
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))"
+          DEFAULT: "hsl(226 70% 55%)",
+          foreground: "hsl(210 40% 98%)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))"
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))"
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))"
+          DEFAULT: "hsl(217 33% 17%)",
+          foreground: "hsl(215 20% 65%)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))"
-        }
+          DEFAULT: "hsl(217 33% 14%)",
+          foreground: "hsl(210 40% 98%)",
+        },
+        accent: {
+          DEFAULT: "hsl(188 94% 43%)",
+          foreground: "hsl(210 40% 98%)",
+        },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
-      }
-    }
+        xl: "1rem",
+        "2xl": "1.25rem",
+      },
+      boxShadow: {
+        glow: "0 0 32px rgba(34,211,238,.35), inset 0 0 12px rgba(255,255,255,.15)",
+      },
+    },
   },
-  plugins: [require("tailwindcss-animate")]
-};
+  plugins: [],
+} satisfies Config;
 
-export default config;
 
