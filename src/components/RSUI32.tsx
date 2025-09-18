@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,13 +32,13 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// 本地组件（你已添加）
+// 本地组件
 import { StarfieldCanvas } from "./StarfieldCanvas";
-import { OracleGlobe } from "./OracleGlobe";
+import OracleGlobe from "./OracleGlobe";
 
 /* =======================
    基础配置
-   ======================= */
+======================= */
 const CFG = {
   token: {
     name: "RStoken",
@@ -53,7 +51,7 @@ const CFG = {
   },
   links: {
     scan: "#",
-    privateSale: "#", // 私募链接（首批信任用户）
+    privateSale: "#",
     whitepaper: "#",
     github: "#",
     twitter: "#",
@@ -87,8 +85,8 @@ const analyticsDemo = [
 ];
 
 /* =======================
-   小型 UI 组件
-   ======================= */
+   小工具
+======================= */
 function Section({
   id,
   title,
@@ -163,8 +161,8 @@ function ArrowTop() {
 }
 
 /* =======================
-   动效 & 自定义 Hook
-   ======================= */
+   动效 hooks
+======================= */
 function useScrollProgress() {
   const [p, setP] = useState(0);
   useEffect(() => {
@@ -202,7 +200,7 @@ function useToast() {
   const push = (text: string) => {
     const id = Date.now();
     setToasts((t) => [...t, { id, text }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2200);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2000);
   };
   const ui = (
     <div className="fixed top-16 right-4 space-y-2 z-[60]">
@@ -238,25 +236,49 @@ function useTilt() {
 }
 
 /* =======================
-   私募模块（UI）
-   ======================= */
-const RATE_RST_PER_USD = 500; // 示例：1 USD = 500 RST
+   星空背景 + 视差
+======================= */
+function ParallaxLayers() {
+  return (
+    <>
+      <div className="parallax layer-1" />
+      <div className="parallax layer-2" />
+      <div className="parallax layer-3" />
+    </>
+  );
+}
+
+function TechBackground() {
+  return (
+    <>
+      <StarfieldCanvas />
+      <ParallaxLayers />
+      <div className="fixed inset-0 -z-10 gradient-shift" />
+      <div className="fixed inset-0 -z-10 noise" />
+    </>
+  );
+}
+
+/* =======================
+   私募组件
+======================= */
+const RATE_RST_PER_USD = 500;
 
 function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
   const [asset, setAsset] = useState<"BNB" | "USDT">("BNB");
   const [amount, setAmount] = useState<number>(1);
   const [bnbPrice, setBnbPrice] = useState<number>(560);
-  const [step, setStep] = useState<0 | 1 | 2>(0); // 0 Approve 1 Contribute 2 Claim
+  const [step, setStep] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
     const fetchPrice = async () => {
       try {
         const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT");
         const j = await r.json();
-        const p = parseFloat(j?.price);
+        const p = parseFloat(j.price);
         if (!isNaN(p)) setBnbPrice(p);
       } catch {
-        // 忽略错误，使用兜底价格
+        // ignore
       }
     };
     fetchPrice();
@@ -264,8 +286,9 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
     return () => clearInterval(id);
   }, []);
 
-  const usd = asset === "BNB" ? amount * bnbPrice : amount; // USDT 面值即 USD
+  const usd = asset === "BNB" ? amount * bnbPrice : amount;
   const rst = Math.floor(usd * RATE_RST_PER_USD).toLocaleString();
+
   const quicks = asset === "BNB" ? [1, 5, 10] : [100, 500, 1000];
 
   const next = () => {
@@ -289,18 +312,10 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
       </CardHeader>
       <CardContent className="grid gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <Button
-            variant={asset === "BNB" ? "default" : "outline"}
-            className={asset === "BNB" ? "btn-neon" : ""}
-            onClick={() => setAsset("BNB")}
-          >
+          <Button variant={asset === "BNB" ? "default" : "outline"} className={asset === "BNB" ? "btn-neon" : ""} onClick={() => setAsset("BNB")}>
             BNB
           </Button>
-          <Button
-            variant={asset === "USDT" ? "default" : "outline"}
-            className={asset === "USDT" ? "btn-neon" : ""}
-            onClick={() => setAsset("USDT")}
-          >
+          <Button variant={asset === "USDT" ? "default" : "outline"} className={asset === "USDT" ? "btn-neon" : ""} onClick={() => setAsset("USDT")}>
             USDT
           </Button>
           <span className="text-muted-foreground ml-auto">时间(UTC)：{CFG.privateSale.timeUTC}</span>
@@ -329,13 +344,8 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
           </p>
         </div>
 
-        {/* 步骤条 */}
         <div className="grid grid-cols-3 gap-2 text-xs">
-          {[
-            { k: 0, t: "Approve" },
-            { k: 1, t: "Contribute" },
-            { k: 2, t: "Claim" },
-          ].map((s) => (
+          {[{ k: 0, t: "Approve" }, { k: 1, t: "Contribute" }, { k: 2, t: "Claim" }].map((s) => (
             <div
               key={s.k}
               className={`rounded-lg px-3 py-2 border border-white/10 bg-black/30 flex items-center justify-center ${
@@ -379,8 +389,8 @@ function PrivateSalePanel({ onToast }: { onToast: (s: string) => void }) {
 }
 
 /* =======================
-   页面骨架
-   ======================= */
+   页面主组件
+======================= */
 export default function RSUI32() {
   const progress = useScrollProgress();
   useScrollReveal();
@@ -394,10 +404,7 @@ export default function RSUI32() {
 
       {/* 滚动进度条 */}
       <div className="fixed top-0 left-0 right-0 h-1.5 bg-white/5 z-50">
-        <div
-          className="h-full bg-gradient-to-r from-cyan-400 via-sky-500 to-fuchsia-500 transition-[width] duration-75"
-          style={{ width: `${progress * 100}%` }}
-        />
+        <div className="h-full bg-gradient-to-r from-cyan-400 via-sky-500 to-fuchsia-500 transition-[width] duration-75" style={{ width: `${progress * 100}%` }} />
       </div>
 
       {/* Header */}
@@ -445,8 +452,7 @@ export default function RSUI32() {
             </h1>
             <p className="text-muted-foreground mt-4 text-base md:text-lg">
               “一个生命的诞生 +1，一次离世 -1”。多源预言机驱动供给变动，
-              <span className="text-cyan-300">透明</span>、
-              <span className="text-cyan-300">可验证</span>、与现实世界紧密映射。
+              <span className="text-cyan-300">透明</span>、<span className="text-cyan-300">可验证</span>、与现实世界紧密映射。
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild className="btn-neon">
@@ -506,7 +512,6 @@ export default function RSUI32() {
                 </div>
               </CardContent>
             </Card>
-
             <Card className="bg-white/5 border-white/10 card-tilt">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">快速入口</CardTitle>
@@ -591,7 +596,6 @@ export default function RSUI32() {
             </CardContent>
           </Card>
 
-          {/* Donut */}
           <Card className="bg-white/5 border-white/10 card-tilt">
             <CardHeader>
               <CardTitle>初始分配占比</CardTitle>
@@ -599,15 +603,7 @@ export default function RSUI32() {
             <CardContent className="relative" style={{ height: 280 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={CFG.distribution}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={70}
-                    outerRadius={110}
-                    paddingAngle={2}
-                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
-                  >
+                  <Pie data={CFG.distribution} dataKey="value" nameKey="name" innerRadius={70} outerRadius={110} paddingAngle={2} label={({ percent }) => `${(percent * 100).toFixed(0)}%`}>
                     {CFG.distribution.map((_, i) => (
                       <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
                     ))}
@@ -623,7 +619,6 @@ export default function RSUI32() {
             </CardContent>
           </Card>
         </div>
-
         <div className="grid lg:grid-cols-3 gap-4 mt-6 text-sm">
           <Kpi title="迟滞带" value="过滤微小波动" desc="|Δ| 小于阈值不应用" />
           <Kpi title="平滑因子" value="0.8–1.2×" desc="降低单周期冲击" />
@@ -724,27 +719,19 @@ export default function RSUI32() {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="q1">
             <AccordionTrigger>为什么供应是动态的？</AccordionTrigger>
-            <AccordionContent>
-              每小时读取公开人口数据，多源校验后将净增量映射到代币供应；小幅波动由迟滞阈值过滤，并通过平滑因子降低冲击。
-            </AccordionContent>
+            <AccordionContent>每小时读取公开人口数据，多源校验后将净增量映射到代币供应；小幅波动由迟滞阈值过滤，并通过平滑因子降低冲击。</AccordionContent>
           </AccordionItem>
           <AccordionItem value="q2">
             <AccordionTrigger>你们能随意改参数或增发吗？</AccordionTrigger>
-            <AccordionContent>
-              关键参数变更有 24h 时间锁，链上排期与执行全可查；增发/销毁依据预言机报告，且有单周期上限与冷却保护。
-            </AccordionContent>
+            <AccordionContent>关键参数变更有 24h 时间锁，链上排期与执行全可查；增发/销毁依据预言机报告，且有单周期上限与冷却保护。</AccordionContent>
           </AccordionItem>
           <AccordionItem value="q3">
             <AccordionTrigger>手续费是多少？</AccordionTrigger>
-            <AccordionContent>
-              默认 0%，上限 ≤10%；全部进入公开 feeVault，用于技术、审计、合规与生态建设，所有提取事件可查。
-            </AccordionContent>
+            <AccordionContent>默认 0%，上限 ≤10%；全部进入公开 feeVault，用于技术、审计、合规与生态建设，所有提取事件可查。</AccordionContent>
           </AccordionItem>
           <AccordionItem value="q4">
             <AccordionTrigger>预言机异常会怎样？</AccordionTrigger>
-            <AccordionContent>
-              多源聚合 + 异常拒绝 + 连续拒绝触发熔断；必要时可 pause 全局，恢复前有冷却保护。
-            </AccordionContent>
+            <AccordionContent>多源聚合 + 异常拒绝 + 连续拒绝触发熔断；必要时可 pause 全局，恢复前有冷却保护。</AccordionContent>
           </AccordionItem>
           <AccordionItem value="q5">
             <AccordionTrigger>是否收集个人数据？</AccordionTrigger>
@@ -797,8 +784,11 @@ export default function RSUI32() {
             <Button
               asChild
               variant="outline"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
-              <a href="#" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <a href="#">
                 <ArrowTop /> 返回顶部
               </a>
             </Button>
@@ -816,8 +806,8 @@ export default function RSUI32() {
 }
 
 /* =======================
-   分割线 & 背景 & 样式
-   ======================= */
+   其他 UI
+======================= */
 function DividerParallax() {
   return (
     <div className="relative h-28 md:h-36 overflow-hidden -mb-8 mt-10">
@@ -838,31 +828,10 @@ function DividerParallax() {
   );
 }
 
-function TechBackground() {
-  return (
-    <>
-      <StarfieldCanvas />
-      <ParallaxLayers />
-      <div className="fixed inset-0 -z-10 gradient-shift" />
-      <div className="fixed inset-0 -z-10 noise" />
-    </>
-  );
-}
-
-function ParallaxLayers() {
-  return (
-    <>
-      <div className="parallax layer-1" />
-      <div className="parallax layer-2" />
-      <div className="parallax layer-3" />
-    </>
-  );
-}
-
 function ExtraStyles() {
+  // 注意：这里用到了内联的 encodeURIComponent 嵌入 SVG 噪点
   return (
     <style>{`
-      /* 渐变动画背景 */
       .gradient-shift {
         background: radial-gradient(1200px 600px at 20% 10%, rgba(0,209,255,.10), transparent),
                     radial-gradient(1000px 500px at 80% 20%, rgba(138,124,255,.10), transparent),
@@ -874,19 +843,17 @@ function ExtraStyles() {
         100% { filter: hue-rotate(25deg) saturate(1.2); }
       }
 
-      /* 视差层 */
       .parallax { position: fixed; left:0; right:0; height:50vh; pointer-events:none; z-index:-1; }
       .layer-1 { top:20vh; background: radial-gradient(60% 80% at 50% 50%, rgba(13,148,136,0.08), transparent); transform: translateY(calc(var(--scroll,0) * .15)); }
       .layer-2 { top:40vh; background: radial-gradient(50% 60% at 30% 70%, rgba(56,189,248,0.07), transparent); transform: translateY(calc(var(--scroll,0) * .25)); }
       .layer-3 { top:60vh; background: radial-gradient(60% 70% at 70% 30%, rgba(99,102,241,0.08), transparent); transform: translateY(calc(var(--scroll,0) * .35)); }
 
-      /* 噪点覆盖（SVG 噪声） */
-      .noise { background-image: url('data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(#n)" opacity=".035"/></svg>`)}'); mix-blend-mode: soft-light; }
+      .noise { background-image: url('data:image/svg+xml;utf8,${encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(#n)" opacity=".035"/></svg>`
+      )}'); mix-blend-mode: soft-light; }
 
-      /* 标题渐变 */
       .title-gradient { background: linear-gradient(90deg,#fff, #9ae6ff 30%, #c7b8ff 60%, #fff); -webkit-background-clip: text; background-clip:text; color: transparent; }
 
-      /* 霓虹按钮 */
       .btn-neon { position: relative; background: linear-gradient(90deg,#06b6d4,#4f46e5); box-shadow: 0 0 32px rgba(34,211,238,.35), inset 0 0 12px rgba(255,255,255,.15); border: none; }
       .btn-neon:hover { filter: brightness(1.05); box-shadow: 0 0 48px rgba(34,211,238,.45), inset 0 0 12px rgba(255,255,255,.25); }
       .btn-neon:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(34,211,238,.35), 0 0 32px rgba(34,211,238,.35); }
@@ -898,14 +865,12 @@ function ExtraStyles() {
         .card-tilt { transform: none !important; transition: none !important; }
       }
 
-      /* ScrollReveal 扫描线入场 */
       .reveal-section { opacity: 0; transform: translateY(24px); position: relative; }
       .reveal-section::before { content:""; position:absolute; inset:0 0 60% 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0, rgba(255,255,255,.06) 1px, transparent 2px, transparent 6px); opacity:0; pointer-events:none; }
       .reveal-section.revealed { opacity: 1; transform: none; transition: opacity .8s ease, transform .8s ease; }
       .reveal-section.revealed::before { animation: scan 1.2s ease 1; }
       @keyframes scan { 0% { opacity:.7; transform: translateY(-40%);} 100% { opacity:0; transform: translateY(40%);} }
 
-      /* 卡片 Tilt 过渡 */
       .card-tilt { transition: transform .15s ease, box-shadow .2s ease; will-change: transform; }
       .card-tilt:hover { box-shadow: 0 10px 30px rgba(0,0,0,.25), 0 0 30px rgba(34,211,238,.15); }
     `}</style>
