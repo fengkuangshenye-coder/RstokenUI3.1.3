@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "postinstall": "node scripts/fix-router.js",
     "prebuild": "node scripts/fix-router.js",
     "fix:router": "node scripts/fix-router.js",
     "build": "next build",
@@ -33,3 +34,4 @@
     "node": ">=18.18.0"
   }
 }
+
