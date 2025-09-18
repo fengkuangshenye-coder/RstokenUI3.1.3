@@ -1,16 +1,9 @@
 {
   "version": 2,
-  "framework": "nextjs",
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "functions": {
-    "api/**/*.{js,ts}": {
-      "runtime": "vercel-node@2.15.10"
-    },
-    "pages/api/**/*.{js,ts}": {
-      "runtime": "vercel-node@2.15.10"
-    },
-    "app/**/route.{js,ts}": {
+    "src/app/**/route.{js,ts}": {
       "runtime": "vercel-node@2.15.10"
     }
   }
