@@ -1,7 +1,18 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+
+/** 明确声明可用的 variant / size，避免类型丢失导致的 “没有 variant 属性” 报错 */
+export type ButtonVariant =
+  | "default"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "destructive";
+
+export type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors " +
@@ -34,13 +45,14 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
