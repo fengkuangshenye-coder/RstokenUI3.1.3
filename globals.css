@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; }
+
+/* 提前放一些通用样式，防止丢失视觉效果 */
+.title-gradient {
+  background: linear-gradient(90deg,#fff,#9ae6ff 30%,#c7b8ff 60%,#fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-neon {
+  background: linear-gradient(90deg,#06b6d4,#4f46e5);
+  box-shadow: 0 0 32px rgba(34,211,238,.35), inset 0 0 12px rgba(255,255,255,.15);
+  border: none;
+}
+.btn-neon:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 48px rgba(34,211,238,.45), inset 0 0 12px rgba(255,255,255,.25);
+}
