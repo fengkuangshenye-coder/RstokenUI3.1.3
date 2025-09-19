@@ -5,11 +5,7 @@ import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
 
-// 与 shadcn 风格一致的命名导出：Tabs / TabsList / TabsTrigger / TabsContent
-// 这样 RSUI32.tsx 的：
-//   import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// 就可以正常工作了。
-
+// 命名导出，匹配 RSUI32.tsx 的用法
 const Tabs = TabsPrimitive.Root;
 
 const TabsList = React.forwardRef<
